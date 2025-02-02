@@ -10,7 +10,7 @@ student_lessons = db.Table('student_lessons',
 )
 
 # User model
-class User(db.Model):  # Removed UserMixin since we're using JWT
+class User(db.Model):  
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(200), unique=True, nullable=False)
     password = db.Column(db.String(500), nullable=False)

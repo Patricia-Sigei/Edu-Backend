@@ -5,7 +5,7 @@ from models import db, User
 from schemas import user_schema, users_schema
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
-
+# route for getting all the users
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_users():
@@ -30,7 +30,7 @@ def get_users():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route for creating users
 @admin_bp.route('/users', methods=['POST'])
 @jwt_required()
 def create_user():
@@ -80,7 +80,7 @@ def create_user():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route for updating users i.e if one can't reset their password
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
@@ -126,7 +126,7 @@ def update_user(user_id):
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route for deleting users
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):

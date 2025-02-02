@@ -4,7 +4,7 @@ from models import db, Assignment, Lesson, User
 from schemas import assignment_schema, assignments_schema, lesson_schema, lessons_schema
 
 instructor_bp = Blueprint('instructor', __name__, url_prefix='/api/instructor')
-
+# to see instructor dashboard
 @instructor_bp.route('/dashboard')
 @jwt_required()
 def dashboard():
@@ -30,7 +30,7 @@ def dashboard():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route for the instructor to create lesson
 @instructor_bp.route('/lesson', methods=['POST'])
 @jwt_required()
 def create_lesson():
@@ -74,7 +74,7 @@ def create_lesson():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route for instructor to create assignment 
 @instructor_bp.route('/assignment', methods=['POST'])
 @jwt_required()
 def create_assignment():
@@ -118,7 +118,7 @@ def create_assignment():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# route to upddate assignments
 @instructor_bp.route('/assignment/<int:assignment_id>/grade', methods=['PUT'])
 @jwt_required()
 def grade_assignment(assignment_id):
@@ -165,7 +165,7 @@ def grade_assignment(assignment_id):
             'message': str(e)
         }), 500
 
-# Additional routes for getting instructor's lessons and assignments
+# routes for getting instructor's lessons and assignments
 @instructor_bp.route('/lessons')
 @jwt_required()
 def get_lessons():

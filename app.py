@@ -12,20 +12,27 @@ jwt = JWTManager()
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
+    
+    # JWT configurations
+    app.config['JWT_SECRET_KEY'] = "JWT_SECRET_KEY"
+    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
+    app.config['JWT_HEADER_TYPE'] = 'Bearer'
 
     # Initialize Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
 
-    # Configure CORS
-    CORS(app, resources={
-        r"/api/*": {
-            "origins":"*",
-            "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-            "allow_headers": ["Content-Type", "Authorization"]
-        }
-    })
+    # Configure CORS 
+    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+
+    # JWT error handler
+    @jwt.invalid_token_loader
+    def invalid_token_callback(error):
+        return {
+            'status': 'error',
+            'message': 'Invalid token'
+        }, 422
 
     # Register blueprints
     from routes.auth_routes import auth_bp
@@ -59,7 +66,6 @@ def create_app(config_class=Config):
             print("Admin user created successfully!")
 
     return app
-
 
 app = create_app()
 

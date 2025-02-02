@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from werkzeug.security import check_password_hash
-from models import User
+from werkzeug.security import check_password_hash, generate_password_hash
+from models import User, db
 from schemas import user_schema
 
 auth_bp = Blueprint('auth', __name__)
@@ -20,8 +20,11 @@ def login():
         user = User.query.filter_by(username=data['username']).first()
         
         if user and check_password_hash(user.password, data['password']):
-            # Create JWT token
-            access_token = create_access_token(identity=user.id)
+            # Create JWT token with role claim
+            access_token = create_access_token(
+                identity=user.id,
+                additional_claims={'role': user.role}
+            )
             
             return jsonify({
                 'status': 'success',
@@ -43,6 +46,7 @@ def login():
             'message': str(e)
         }), 500
 
+# verify passowrd
 @auth_bp.route('/api/auth/verify', methods=['GET'])
 @jwt_required()
 def verify_token():
@@ -68,17 +72,15 @@ def verify_token():
             'status': 'error',
             'message': str(e)
         }), 500
-
+# logout route
 @auth_bp.route('/api/auth/logout', methods=['POST'])
 @jwt_required()
 def logout():
-    # With JWT, the frontend just needs to remove the token
     return jsonify({
         'status': 'success',
         'message': 'Logged out successfully'
     }), 200
-
-# Optional: Password reset route
+# reset password
 @auth_bp.route('/api/auth/reset-password', methods=['POST'])
 @jwt_required()
 def reset_password():
