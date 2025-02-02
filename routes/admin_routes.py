@@ -1,10 +1,11 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from werkzeug.security import generate_password_hash
 from models import db, User
 from schemas import user_schema, users_schema
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
+
 # route for getting all the users
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
@@ -30,6 +31,7 @@ def get_users():
             'status': 'error',
             'message': str(e)
         }), 500
+
 # route for creating users
 @admin_bp.route('/users', methods=['POST'])
 @jwt_required()
@@ -58,11 +60,19 @@ def create_user():
                 'message': 'Username already exists'
             }), 400
 
+        # Validate role
+        valid_roles = ['ADMIN', 'INSTRUCTOR', 'STUDENT']
+        if data['role'].upper() not in valid_roles:
+            return jsonify({
+                'status': 'error',
+                'message': f'Invalid role. Must be one of: {", ".join(valid_roles)}'
+            }), 400
+
         hashed_password = generate_password_hash(data['password'])
         new_user = User(
             username=data['username'],
             password=hashed_password,
-            role=data['role']
+            role=data['role'].upper()  
         )
         
         db.session.add(new_user)
@@ -80,6 +90,7 @@ def create_user():
             'status': 'error',
             'message': str(e)
         }), 500
+
 # route for updating users i.e if one can't reset their password
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
@@ -110,7 +121,14 @@ def update_user(user_id):
             user.password = generate_password_hash(data['password'])
             
         if 'role' in data:
-            user.role = data['role']
+            # Validate role
+            valid_roles = ['ADMIN', 'INSTRUCTOR', 'STUDENT']
+            if data['role'].upper() not in valid_roles:
+                return jsonify({
+                    'status': 'error',
+                    'message': f'Invalid role. Must be one of: {", ".join(valid_roles)}'
+                }), 400
+            user.role = data['role'].upper()
 
         db.session.commit()
         
@@ -126,6 +144,7 @@ def update_user(user_id):
             'status': 'error',
             'message': str(e)
         }), 500
+
 # route for deleting users
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()

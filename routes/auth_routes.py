@@ -72,6 +72,7 @@ def verify_token():
             'status': 'error',
             'message': str(e)
         }), 500
+    
 # logout route
 @auth_bp.route('/api/auth/logout', methods=['POST'])
 @jwt_required()

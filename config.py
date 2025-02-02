@@ -22,6 +22,12 @@ class Config:
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     
     # JWT Configuration
-    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY', 'your-jwt-secret-key-change-this')
+    JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     JWT_ACCESS_TOKEN_EXPIRES = False
     JWT_HEADER_TYPE = 'Bearer'
+    JWT_TOKEN_LOCATION = ['headers']
+    JWT_HEADER_NAME = 'Authorization'
+    JWT_ERROR_MESSAGE_KEY = 'message'
+    JWT_ALGORITHM = "HS256"
+
+    

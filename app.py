@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, jsonify, request
 from flask_migrate import Migrate
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
@@ -13,26 +13,46 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
     
-    # JWT configurations
-    app.config['JWT_SECRET_KEY'] = "JWT_SECRET_KEY"
-    app.config['JWT_ACCESS_TOKEN_EXPIRES'] = False
-    app.config['JWT_HEADER_TYPE'] = 'Bearer'
-
     # Initialize Flask extensions
     db.init_app(app)
     migrate.init_app(app, db)
     jwt.init_app(app)
 
     # Configure CORS 
-    CORS(app, supports_credentials=True, origins=["http://localhost:3000"])
+    CORS(app, supports_credentials=True, origins="*", allow_headers=["Content-Type", "Authorization"]) 
+# using CORS to handle the JWT error
+    @app.after_request
+    def after_request(response):
+        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+        return response
 
-    # JWT error handler
+    # JWT error handlers
     @jwt.invalid_token_loader
     def invalid_token_callback(error):
-        return {
+        return jsonify({
             'status': 'error',
             'message': 'Invalid token'
-        }, 422
+        }), 422
+
+    @jwt.unauthorized_loader
+    def unauthorized_callback(error):
+        return jsonify({
+            'status': 'error',
+            'message': 'Missing Authorization Header'
+        }), 401
+
+    # Debug route - properly indented inside create_app
+    @app.route('/api/debug/token', methods=['GET'])
+    def debug_token():
+        auth_header = request.headers.get('Authorization')
+        all_headers = dict(request.headers)
+        return jsonify({
+            'status': 'debug',
+            'auth_header': auth_header,
+            'all_headers': all_headers,
+            'env_secret': app.config['JWT_SECRET_KEY']
+        })
 
     # Register blueprints
     from routes.auth_routes import auth_bp
