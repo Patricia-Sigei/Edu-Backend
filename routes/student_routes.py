@@ -1,6 +1,6 @@
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
-from models import db, Assignment, Lesson, User  # Changed 'user' to 'User'
+from models import db, Assignment, Lesson, User  
 from schemas import assignment_schema, assignments_schema, lesson_schema, lessons_schema
 
 student_bp = Blueprint('student', __name__, url_prefix='/api/student')
@@ -12,7 +12,7 @@ def dashboard():
         current_user_id = get_jwt_identity()
         student = User.query.get(current_user_id)
         
-        if not student or not student.is_student():  # Using new helper method
+        if not student or not student.is_student():  
             return jsonify({
                 'status': 'error',
                 'message': 'Unauthorized access'
