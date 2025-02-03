@@ -42,7 +42,7 @@ def create_app(config_class=Config):
             'message': 'Missing Authorization Header'
         }), 401
 
-    # Debug route - properly indented inside create_app
+    # Debug route - properly indented inside cr
     @app.route('/api/debug/token', methods=['GET'])
     def debug_token():
         auth_header = request.headers.get('Authorization')
@@ -90,5 +90,4 @@ def create_app(config_class=Config):
 app = create_app()
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=8080)
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=8080, debug=True)

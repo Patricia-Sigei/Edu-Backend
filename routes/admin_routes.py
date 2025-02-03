@@ -36,9 +36,11 @@ def get_users():
 @admin_bp.route('/users', methods=['POST'])
 @jwt_required()
 def create_user():
+
+    # return jsonify({"message":"created"})
     try:
         current_user_id = get_jwt_identity()
-        admin = User.query.get(current_user_id)
+        admin = User.query.get(int(current_user_id))
         
         if not admin or admin.role != 'ADMIN':
             return jsonify({

@@ -94,7 +94,7 @@ class Lesson(db.Model):
 
     instructor_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     instructor = db.relationship('User', back_populates='lessons', foreign_keys=[instructor_id])
-    students = db.relationship('User', secondary=student_lessons, back_populates='student_lessons', lazy='dynamic')
+    students = db.relationship('User', secondary=student_lessons, back_populates='student_lessons')
 
     def __init__(self, title, content, description, due_date, instructor_id):
         self.title = title

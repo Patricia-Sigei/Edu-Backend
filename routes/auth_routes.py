@@ -22,7 +22,7 @@ def login():
         if user and check_password_hash(user.password, data['password']):
             # Create JWT token with role claim
             access_token = create_access_token(
-                identity=user.id,
+                identity=f"{user.id}",
                 additional_claims={'role': user.role}
             )
             

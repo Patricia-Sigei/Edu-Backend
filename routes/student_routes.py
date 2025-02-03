@@ -25,7 +25,7 @@ def dashboard():
         ).all()
 
         # Get lessons for this student
-        lessons = student.student_lessons.all()  
+        lessons = student.student_lessons
 
         return jsonify({
             'status': 'success',
