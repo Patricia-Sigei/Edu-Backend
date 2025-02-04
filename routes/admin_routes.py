@@ -1,12 +1,12 @@
 from flask import Blueprint, jsonify, request
-from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash
-from models import db, User
-from schemas import user_schema, users_schema
+from models import db, User, Assignment, Lesson
+from schemas import user_schema, users_schema, assignment_schema, assignments_schema, lesson_schema, lessons_schema
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/api/admin')
 
-# route for getting all the users
+# Route for getting all the users
 @admin_bp.route('/users', methods=['GET'])
 @jwt_required()
 def get_users():
@@ -32,12 +32,10 @@ def get_users():
             'message': str(e)
         }), 500
 
-# route for creating users
+# Route for creating users
 @admin_bp.route('/users', methods=['POST'])
 @jwt_required()
 def create_user():
-
-    # return jsonify({"message":"created"})
     try:
         current_user_id = get_jwt_identity()
         admin = User.query.get(int(current_user_id))
@@ -93,7 +91,7 @@ def create_user():
             'message': str(e)
         }), 500
 
-# route for updating users i.e if one can't reset their password
+# Route for updating users
 @admin_bp.route('/users/<int:user_id>', methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
@@ -147,7 +145,7 @@ def update_user(user_id):
             'message': str(e)
         }), 500
 
-# route for deleting users
+# Route for deleting users
 @admin_bp.route('/users/<int:user_id>', methods=['DELETE'])
 @jwt_required()
 def delete_user(user_id):
@@ -179,6 +177,58 @@ def delete_user(user_id):
 
     except Exception as e:
         db.session.rollback()
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+# Route for getting all assignments 
+@admin_bp.route('/assignments', methods=['GET'])
+@jwt_required()
+def get_assignments():
+    try:
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        
+        if not current_user or current_user.role != 'ADMIN':
+            return jsonify({
+                'status': 'error',
+                'message': 'Unauthorized access'
+            }), 403
+
+        assignments = Assignment.query.all()
+        return jsonify({
+            'status': 'success',
+            'data': assignments_schema.dump(assignments)
+        }), 200
+
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': str(e)
+        }), 500
+
+# Route for getting all lessons
+@admin_bp.route('/lessons', methods=['GET'])
+@jwt_required()
+def get_lessons():
+    try:
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+        
+        if not current_user or current_user.role != 'ADMIN':
+            return jsonify({
+                'status': 'error',
+                'message': 'Unauthorized access'
+            }), 403
+
+        lessons = Lesson.query.all()
+        return jsonify({
+            'status': 'success',
+            'data': lessons_schema.dump(lessons)
+        }), 200
+
+    except Exception as e:
         return jsonify({
             'status': 'error',
             'message': str(e)

@@ -20,12 +20,6 @@ def create_app(config_class=Config):
 
     # Configure CORS 
     CORS(app, supports_credentials=True, origins="*", allow_headers=["Content-Type", "Authorization"]) 
-# using CORS to handle the JWT error
-    @app.after_request
-    def after_request(response):
-        response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
-        response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
-        return response
 
     # JWT error handlers
     @jwt.invalid_token_loader
@@ -42,17 +36,6 @@ def create_app(config_class=Config):
             'message': 'Missing Authorization Header'
         }), 401
 
-    # Debug route - properly indented inside cr
-    @app.route('/api/debug/token', methods=['GET'])
-    def debug_token():
-        auth_header = request.headers.get('Authorization')
-        all_headers = dict(request.headers)
-        return jsonify({
-            'status': 'debug',
-            'auth_header': auth_header,
-            'all_headers': all_headers,
-            'env_secret': app.config['JWT_SECRET_KEY']
-        })
 
     # Register blueprints
     from routes.auth_routes import auth_bp
@@ -84,6 +67,18 @@ def create_app(config_class=Config):
             db.session.add(admin)
             db.session.commit()
             print("Admin user created successfully!")
+
+      # manually create insstructor for testing
+        instructor = User.query.filter_by(username="INST-001").first()
+        if not instructor:
+            instructor = User(
+                username="INST-001", 
+                password=generate_password_hash("Instructor@123"), 
+                role="INSTRUCTOR"
+            )
+            db.session.add(instructor)
+            db.session.commit()
+            print("Instructor user created successfully!")
 
     return app
 
