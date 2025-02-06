@@ -19,7 +19,7 @@ def create_app(config_class=Config):
     jwt.init_app(app)
 
     # Configure CORS 
-    CORS(app, supports_credentials=True, origins="*", allow_headers=["Content-Type", "Authorization"]) 
+    CORS(app, supports_credentials=True, origins="*", allow_headers="*") 
 
     # JWT error handlers
     @jwt.invalid_token_loader
@@ -68,7 +68,7 @@ def create_app(config_class=Config):
             db.session.commit()
             print("Admin user created successfully!")
 
-      # manually create insstructor for testing
+      # manually create instructor for testing
         instructor = User.query.filter_by(username="INST-001").first()
         if not instructor:
             instructor = User(
@@ -79,6 +79,18 @@ def create_app(config_class=Config):
             db.session.add(instructor)
             db.session.commit()
             print("Instructor user created successfully!")
+
+         # manually create student for testing
+        instructor = User.query.filter_by(username="SFT-001").first()
+        if not student:
+            student = User(
+                username="SFT-001", 
+                password=generate_password_hash("Student@123"), 
+                role="STUDENT"
+            )
+            db.session.add(student)
+            db.session.commit()
+            print("Student user created successfully!")
 
     return app
 
